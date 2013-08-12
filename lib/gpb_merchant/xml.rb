@@ -6,21 +6,27 @@ module GpbMerchant
     def self.build_check_response(data, success = true)
       source = Nokogiri::XML::Builder.new do |xml|
         xml.payment_avail_response do 
-          xml.result do
-            xml.code("1") # ok!
-            xml.desc(data[:desc])
-          end
-          xml.purchase do 
-            xml.shortDesc(" ")
-            xml.longDesc("Zakaz ##{data[:order_id]}")
-            xml.account_amount do
-              xml.id(::GpbMerchant::account_id)
-              xml.amount(data[:amount])
-              xml.currency(data[:currency])
-              xml.exponent("2")
+          if success
+            xml.result do
+              xml.code("1") # ok!
+              xml.desc(data[:desc])
+            end
+            xml.purchase do 
+              xml.shortDesc(" ")
+              xml.longDesc("Zakaz ##{data[:order_id]}")
+              xml.account_amount do
+                xml.id(::GpbMerchant::account_id)
+                xml.amount(data[:amount])
+                xml.currency(data[:currency])
+                xml.exponent("2")
+              end
+            end
+          else
+            xml.result do
+              xm.code('2')
+              xml.desc('Unable to accept this payment')
             end
           end
-          xml.merchant_trx("")
         end
       end
       source.to_xml.gsub('payment_avail_response','payment-avail-response').gsub('account_amount','account-amount').gsub('merchant_trx','merchant-trx')
