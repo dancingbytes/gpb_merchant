@@ -106,19 +106,19 @@ module GpbMerchant
   def register_payment(params)
 
     # Разбираем время авторизационного запроса в формате «MMddHHmmss»
-    m1 = String(params[:ts]).match(
-      /(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})(?<minute>\d{2})(?<sec>\d{2})/
-    )
+    m1 = Date._strptime(params[:ts],"%Y%m%d %H:%M:%S")
 
     # Пробуем преобразовать в дату
-    transmission_at = ::Time.new(
-      ::Time.now.year,
-      m1[:month],
-      m1[:day],
-      m1[:hour],
-      m1[:minute],
-      m1[:sec]
-    ) rescue nil
+    # Дописать потом зону
+    transmission_at =  ::Time.local(
+      time[:year],
+      time[:mon],
+      time[:mday],
+      time[:hour],
+      time[:min],
+      time[:sec],
+      time[:sec_fraction],
+      time[:zone]) rescue nil
 
     result, msg = ::GpbTransaction.complete({
 
