@@ -54,7 +54,7 @@ class GpbController < ApplicationController
 
   def validate_merch_id
 
-    return true ((::GpbMerchant::merch_id == params[:merch_id]) && (params[:merch_id] != ""))
+    return true if ((::GpbMerchant::merch_id == params[:merch_id]) && (params[:merch_id] != ""))
 
     respond_to do |format|
       format.html { render :text => "Неверный запрос", :status => 400, :layout => false }
