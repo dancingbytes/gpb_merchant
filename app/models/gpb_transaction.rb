@@ -30,10 +30,10 @@ class GpbTransaction
   field :fio          , type: String
 
   # Дата создания операции
-  field :created_at   , type: Time,     :default ->() { ::Time.now.utc }
+  field :created_at   , type: Time,     default: ->() { ::Time.now.utc }
 
   # Дата последнего обновления
-  field :updated_at   , type: Time,     :default ->() { ::Time.now.utc }
+  field :updated_at   , type: Time,     default: ->() { ::Time.now.utc }
 
   # Дата проверки возможности платежа
   field :checked_at   , type: Time
@@ -45,7 +45,7 @@ class GpbTransaction
   field :transmission_at, type: Time
 
   # Идентификатор счета в PPS, на который был осуществлен перевод денег
-  filed :account_id   , type: String
+  field :account_id   , type: String
 
   # Идентификатор платежа в ПЦ банка-эквайера
   field :rrn          , type: String
