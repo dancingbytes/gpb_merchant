@@ -37,7 +37,7 @@ class GpbController < ApplicationController
       rrn:          params['p.rrn'],
 
       transmission_at: params['p.transmissionDateTime'],
-      payed_at:     params['td']
+      payed_at:     params['td'],
 
       card_holder:  params['p.cardholder'],
       card_masked:  params['p.maskedPan'],
