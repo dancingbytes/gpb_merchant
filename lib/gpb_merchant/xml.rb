@@ -1,56 +1,109 @@
 # encoding: utf-8
 module GpbMerchant
 
-  class XmlBuilder
+  module XmlBuilder
 
+    extend self
 
-    def self.build_check_response(data, success = true)
-      source = Nokogiri::XML::Builder.new do |xml|
-        xml.payment_avail_response do
+    def check_response(data, success = true)
+
+      create_xml do |xml|
+
+        xml.send(:"payment-avail-response") do
+
           if success
+
             xml.result do
-              xml.code("1") # ok!
-              xml.desc(data[:desc])
-            end
+
+              xml.code  "1" # ok!
+              xml.desc  xml_escape(data[:desc])
+
+            end # result
+
+            xml.send(:"merchant-trx", data[:merchant_trx_id])
+
             xml.purchase do
-              xml.shortDesc(" ")
-              xml.longDesc("Zakaz ##{data[:order_id]}")
-              xml.account_amount do
-                xml.id(::GpbMerchant::account_id)
-                xml.amount(data[:amount])
-                xml.currency(data[:currency])
-                xml.exponent("2")
-              end
-            end
+
+              xml.shortDesc " "
+              xml.longDesc  "Order ##{data[:order_uri]}"
+
+              xml.send(:"account-amount") do
+
+                xml.id        ::GpbMerchant::account_id
+                xml.amount    data[:amount]
+                xml.currency  data[:currency]
+                xml.exponent  "2"
+
+              end # account-amount
+
+            end # purchase
+
           else
+
             xml.result do
-              xm.code('2')
-              xml.desc('Unable to accept this payment')
-            end
-          end
-        end
-      end
-      source.to_xml.gsub('payment_avail_response','payment-avail-response').gsub('account_amount','account-amount').gsub('merchant_trx','merchant-trx')
-    end # build_check_response
 
-    def self.build_register_response(success = true)
+              xm.code   '2'
+              xml.desc  xml_escape(data[:desc])
 
-      source = Nokogiri::XML::Builder.new do |xml|
-        xml.register_payment_response do
+            end # result
+
+          end # if
+
+        end # payment-avail-response
+
+      end # create_xml
+
+    end # check_response
+
+
+    def register_response(data, success = true)
+
+      create_xml do |xml|
+
+        xml.send(:"register-payment-response") do
+
           xml.result do
+
             if success
-              xml.code("1")
-              xml.desc("OK")
+
+              xml.code  "1"
+              xml.desc  "OK"
+
             else
-              xml.code("2")
-              xml.desc("Temporary unavailable")
-            end
-          end # xml.result
-        end # xml.register_payment_response
-      end
-      source.to_xml.gsub('register_payment_response','register-payment-response')
-    end
 
-  end
+              xml.code  "2"
+              xml.desc  xml_escape(data[:desc])
 
-end
+            end # if
+
+          end # result
+
+        end # register-payment-response
+
+      end # create_xml
+
+    end # register_response
+
+    private
+
+    def create_xml(&block)
+
+      source = Nokogiri::XML::Builder.new(:encoding => 'UTF-8', &block)
+      source.to_xml
+
+    end # create_xml
+
+    def xml_escape(str)
+
+      str
+        .gsub(/&/, "&amp;")
+        .gsub(/'/, "&apos;")
+        .gsub(/"/, "&quot;")
+        .gsub(/>/, "&gt;")
+        .gsub(/</, "&lt;")
+
+    end # xml_escape
+
+  end # XmlBuilder
+
+end # GpbMerchant
