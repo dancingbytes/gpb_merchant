@@ -1,10 +1,11 @@
+# encoding: utf-8
 class GpbController < ApplicationController
   layout false
 
   unloadable
 
 
-  before_filter -> do 
+  before_filter -> do
     authenticate_or_request_with_http_basic do |login, password|
       (login == ::GpbMerchant::login && password == ::GpbMerchant::password)
     end
@@ -13,8 +14,8 @@ class GpbController < ApplicationController
   before_filter -> { raise 'unknown merch_id' if ::GpbMerchant::merch_id != params[:merch_id] }
 
   def check
-    
-    success = true    
+
+    success = true
     order = Order.where(uri: params['o.order_uri']).first
     success = false unless order
 
@@ -23,7 +24,7 @@ class GpbController < ApplicationController
   end
 
   def pay
-    success = true    
+    success = true
     order = Order.where(uri: params['o.order_uri']).first
     success = false unless order
 

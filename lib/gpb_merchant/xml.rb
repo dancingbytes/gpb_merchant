@@ -1,3 +1,4 @@
+# encoding: utf-8
 module GpbMerchant
 
   class XmlBuilder
@@ -5,13 +6,13 @@ module GpbMerchant
 
     def self.build_check_response(data, success = true)
       source = Nokogiri::XML::Builder.new do |xml|
-        xml.payment_avail_response do 
+        xml.payment_avail_response do
           if success
             xml.result do
               xml.code("1") # ok!
               xml.desc(data[:desc])
             end
-            xml.purchase do 
+            xml.purchase do
               xml.shortDesc(" ")
               xml.longDesc("Zakaz ##{data[:order_id]}")
               xml.account_amount do
@@ -33,7 +34,7 @@ module GpbMerchant
     end # build_check_response
 
     def self.build_register_response(success = true)
-        
+
       source = Nokogiri::XML::Builder.new do |xml|
         xml.register_payment_response do
           xml.result do

@@ -6,8 +6,8 @@ require 'gpb_merchant/version'
 Gem::Specification.new do |spec|
   spec.name          = "gpb_merchant"
   spec.version       = GpbMerchant::VERSION
-  spec.authors       = ["Ivan Piliaiev"]
-  spec.email         = ["piliaiev@gmail.com"]
+  spec.authors       = ["Stanislav Ershov"]
+  spec.email         = ["digital.stream.of.mind@gmail.com"]
   spec.description   = %q{Api for e-card GazPromBank}
   spec.summary       = %q{Api for e-card GazPromBank}
   spec.homepage      = ""
