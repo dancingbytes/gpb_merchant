@@ -57,7 +57,7 @@ class GpbTransaction
   field :card_masked  , type: String
 
   # Статус операции
-  field :status_code  , type: Integer,  default: 101
+  field :state_code  , type: Integer,  default: 101
 
   # Итоговая стоимость заказа
   field :price        , type: Float,    default: 0
@@ -121,13 +121,14 @@ class GpbTransaction
     # Инициализация платежа. Выставление счета
     def init(order_uri)
 
+      order = Order.where(order_uri: order_uri).first
       tr = new
       tr.merch_id     = ::GpbMerchant.merch_id
       tr.order_uri    = order_uri
-      tr.phone        = self.order.try(:phone_number)
-      tr.fio          = self.order.try(:fio)
-      tr.price        = self.order.try(:price) || 0
-      tr.status_code  = 101
+      tr.phone        = order.try(:phone_number)
+      tr.fio          = order.try(:fio)
+      tr.price        = order.try(:price) || 0
+      tr.state_code  = 101
 
       begin
 
@@ -164,11 +165,11 @@ class GpbTransaction
         return [ false, "Выставленный счет отменен" ]
       end
 
-      delta = tr.price - params[:amount]
+      delta = tr.price.to_f - params[:amount].to_f
 
       return [false,
         "Сумма оплаты (#{params[:amount]} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price} руб.)"
-      ] if delta < 0.001 || delta > 0.001
+      ] if delta > 0.001
 
       # Сохраняем данные
       tr.state_code = 201
@@ -213,11 +214,11 @@ class GpbTransaction
         return [ false, "Неверный идентификатор операции" ]
       end
 
-      delta = tr.price - params[:amount]
+      delta = tr.price.to_f - params[:amount].to_f
 
       return [false,
         "Сумма оплаты (#{params[:amount]} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price} руб.)"
-      ] if delta < 0.001 || delta > 0.001
+      ] if delta > 0.001
 
       # Сохраняем данные
       tr.state_code   = (params[:result_code] == 1 ? 301 : 402)
@@ -255,7 +256,7 @@ class GpbTransaction
 
       return [ false, "Счет не был выставлен для указанного заказа." ] unless tr
 
-      tr.status_code = 401 # отмена
+      tr.state_code = 401 # отмена
 
       begin
 

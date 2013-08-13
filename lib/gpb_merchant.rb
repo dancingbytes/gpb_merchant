@@ -86,7 +86,7 @@ module GpbMerchant
       merch_id:   params[:merch_id],
       order_uri:  params[:order_uri],
       amount:     (params[:amount].try(:to_f) || 0),
-      checked_at: (::URI.decode_www_form_component(params[:ts]).to_time rescue nil)
+      checked_at: params[:ts].to_time
 
     })
 
@@ -106,7 +106,7 @@ module GpbMerchant
   def register_payment(params)
 
     # Разбираем время авторизационного запроса в формате «MMddHHmmss»
-    m1 = String(params[:transmission_at]).match(
+    m1 = String(params[:ts]).match(
       /(?<month>\d{2})(?<day>\d{2})(?<hour>\d{2})(?<minute>\d{2})(?<sec>\d{2})/
     )
 
@@ -135,15 +135,15 @@ module GpbMerchant
       rrn:          params[:rrn],
 
       transmission_at: transmission_at,
-      payed_at:     (::URI.decode_www_form_component(params[:ts]).to_time rescue nil),
+      payed_at:     transmission_at,
 
-      card_holder:  ::URI.decode_www_form_component(params[:card_holder]),
+      card_holder:  params[:card_holder],
       card_masked:  params[:card_masked],
 
       # TODO: пока не знаю, что с этим параметром делать
       fully_auth:   params[:fully_auth] == 'Y',
 
-      signature:    ::URI.decode_www_form_component(params[:signature])
+      signature:    params[:signature]
 
     })
 
