@@ -85,8 +85,8 @@ module GpbMerchant
       trx_id:     params[:trx_id],
       merch_id:   params[:merch_id],
       order_uri:  params[:order_uri],
-      amount:     params[:amount].try(:to_f) || 0,
-      checked_at: ::URI.decode_www_form_component(params[:ts]).to_time rescue nil
+      amount:     (params[:amount].try(:to_f) || 0),
+      checked_at: (::URI.decode_www_form_component(params[:ts]).to_time rescue nil)
 
     })
 
@@ -128,14 +128,14 @@ module GpbMerchant
 
       order_uri:    params[:order_uri],
 
-      result_code:  params[:result_code].try(:to_i) || 0,
-      amount:       params[:amount].try(:to_f) || 0),
+      result_code:  (params[:result_code].try(:to_i) || 0),
+      amount:       (params[:amount].try(:to_f) || 0),
 
       account_id:   params[:account_id],
       rrn:          params[:rrn],
 
       transmission_at: transmission_at,
-      payed_at:     ::URI.decode_www_form_component(params[:ts]).to_time rescue nil
+      payed_at:     (::URI.decode_www_form_component(params[:ts]).to_time rescue nil),
 
       card_holder:  ::URI.decode_www_form_component(params[:card_holder]),
       card_masked:  params[:card_masked],
