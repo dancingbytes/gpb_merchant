@@ -42,7 +42,7 @@ module GpbMerchant
 
             xml.result do
 
-              xm.code   '2'
+              xml.code   '2'
               xml.desc  xml_escape(data[:desc])
 
             end # result
