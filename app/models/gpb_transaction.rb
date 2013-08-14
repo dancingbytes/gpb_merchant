@@ -59,8 +59,8 @@ class GpbTransaction
   # Статус операции
   field :state_code  , type: Integer,  default: 101
 
-  # Итоговая стоимость заказа
-  field :price        , type: Float,    default: 0
+  # Итоговая стоимость заказа в копейках
+  field :price        , type: Integer,    default: 0
 
 
   validates_presence_of   :trx_id,
@@ -125,10 +125,11 @@ class GpbTransaction
       order = Order.where(uri: order_uri).first
       tr = new
       tr.merch_id     = ::GpbMerchant.merch_id
+      tr.account_id   = ::GpbMerchant.account_id
       tr.order_uri    = order_uri
       tr.phone        = order.try(:phone_number)
       tr.fio          = order.try(:fio)
-      tr.price        = order.try(:price) || 0
+      tr.price        = order.try(:price).try(:*, 100).try(:to_i)
       tr.state_code   = 101
 
       begin
@@ -166,11 +167,11 @@ class GpbTransaction
         return [ false, "Выставленный счет отменен" ]
       end
 
-      delta = tr.price.to_f - params[:amount].to_f
+      delta = tr.price - params[:amount].try(:to_i)
 
       return [false,
-        "Сумма оплаты (#{params[:amount]} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price} руб.)"
-      ] if delta > 0.001
+        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price.to_f/100} руб.)"
+      ] if delta > 0 || delta < 0
 
       # Сохраняем данные
       tr.state_code = 201
@@ -215,11 +216,11 @@ class GpbTransaction
         return [ false, "Неверный идентификатор операции" ]
       end
 
-      delta = tr.price.to_f - params[:amount].to_f
+      delta = tr.price - params[:amount].try(:to_i)
 
       return [false,
-        "Сумма оплаты (#{params[:amount]} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price} руб.)"
-      ] if delta > 0.001
+        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price.to_f/100} руб.)"
+      ] if delta > 0 || delta < 0
 
       # Сохраняем данные
       tr.state_code   = (params[:result_code] == 1 ? 301 : 402)
@@ -264,7 +265,7 @@ class GpbTransaction
         if tr.with(safe: true).save
           [ true, "Счет на оплату отменен" ]
         else
-          [ false, tr.errors.first.try(:message) || "Неизвестная ошибка" ]
+          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
         end
 
       rescue => e

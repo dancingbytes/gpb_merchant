@@ -65,7 +65,7 @@ module GpbMerchant
       :back_url_s   => self.back_url_success,
       :back_url_f   => self.back_url_failure,
       "o.order_uri" => order_uri,
-      "o.amount"    => Order.where(uri: order_uri).first.price.to_f
+      "o.amount"    => (Order.where(uri: order_uri).first.price.to_f*100).to_i
 
     })
 
@@ -86,18 +86,18 @@ module GpbMerchant
       trx_id:     params[:trx_id],
       merch_id:   params[:merch_id],
       order_uri:  params[:order_uri],
-      amount:     (params[:amount].try(:to_f) || 0),
+      amount:     (params[:amount].try(:to_i) || 0),
       checked_at: params[:ts].try(:to_time)
 
     })
 
     ::GpbMerchant::XmlBuilder.check_response({
 
-      order_id: params[:order_uri],
-      merchant_trx_id: id,
-      amount:   params[:amount],
-      currency: 643,
-      desc:     msg
+      order_id:         params[:order_uri],
+      merchant_trx_id:  id,
+      amount:           (params[:amount].try(:to_i) || 0),
+      currency:         643,
+      desc:             msg
 
     }, result)
 
@@ -130,7 +130,7 @@ module GpbMerchant
       order_uri:    params[:order_uri],
 
       result_code:  (params[:result_code].try(:to_i) || 0),
-      amount:       (params[:amount].try(:to_f) || 0),
+      amount:       (params[:amount].try(:to_i) || 0),
 
       account_id:   params[:account_id],
       rrn:          params[:rrn],

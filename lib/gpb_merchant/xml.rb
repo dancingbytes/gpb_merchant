@@ -30,7 +30,7 @@ module GpbMerchant
               xml.send(:"account-amount") do
 
                 xml.id        ::GpbMerchant::account_id
-                xml.amount    data[:amount].to_f
+                xml.amount    data[:amount]
                 xml.currency  data[:currency]
                 xml.exponent  "2"
 
