@@ -16,17 +16,13 @@ GpbMerchant.pps_url             'https://test.pps.gazprombank.ru/payment/start.w
 
 ### Use
 
-1. Create a bill for order
+At first create a bill for order:
 
-```
-GpbMerchant.init_payment("0081793")
-```
+`GpbMerchant.init_payment("0081793")`
 
-3. Use link
+Then redirect to url:
 
-```
-GpbMerchant.url_for_payment("0081793")
-```
+`GpbMerchant.url_for_payment("0081793")`
 
 ### License
 
