@@ -24,13 +24,13 @@ module GpbMerchant
 
             xml.purchase do
 
-              xml.shortDesc " "
+              xml.shortDesc "Order ##{data[:order_uri]}"
               xml.longDesc  "Order ##{data[:order_uri]}"
 
               xml.send(:"account-amount") do
 
                 xml.id        ::GpbMerchant::account_id
-                xml.amount    data[:amount]
+                xml.amount    data[:amount].to_f
                 xml.currency  data[:currency]
                 xml.exponent  "2"
 

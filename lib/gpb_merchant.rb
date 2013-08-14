@@ -65,7 +65,7 @@ module GpbMerchant
       :back_url_s   => self.back_url_success,
       :back_url_f   => self.back_url_failure,
       "o.order_uri" => order_uri,
-      "o.amount"    => Order.where(uri: order_uri).first.price
+      "o.amount"    => Order.where(uri: order_uri).first.price.to_f
 
     })
 
