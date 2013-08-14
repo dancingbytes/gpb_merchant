@@ -75,19 +75,20 @@ class GpbTransaction
 
   validates_presence_of   :card_holder,
     :message  => "Укажите владельца карты",
-    :if       => ->() { [201, 301].include?(self.state_code) }
+    :if       => ->() { [301].include?(self.state_code) }
 
   validates_presence_of   :card_masked,
     :message  => "Введите номер карты карты",
-    :if       => ->() { [201, 301].include?(self.state_code) }
+    :if       => ->() { [301].include?(self.state_code) }
 
   validates_uniqueness_of :order_uri,
     :scope    => [ :trx_id, :merch_id ],
     :message  => "Заказ уже находится в обработке"
 
   validates_numericality_of :price,
-    :greater_than => 0,
-    :message      => "Сумма оплаты должна быть больше 0"
+    greater_than: 0,
+    message:      'Сумма оплаты должна быть больше 0',
+    if:           ->() { [101].include?(self.state_code) }
 
   validate :valid_order?
 
@@ -121,21 +122,21 @@ class GpbTransaction
     # Инициализация платежа. Выставление счета
     def init(order_uri)
 
-      order = Order.where(order_uri: order_uri).first
+      order = Order.where(uri: order_uri).first
       tr = new
       tr.merch_id     = ::GpbMerchant.merch_id
       tr.order_uri    = order_uri
       tr.phone        = order.try(:phone_number)
       tr.fio          = order.try(:fio)
       tr.price        = order.try(:price) || 0
-      tr.state_code  = 101
+      tr.state_code   = 101
 
       begin
 
         if tr.with(safe: true).save
           [ true, "Счет на оплату выставлен" ]
         else
-          [ false, tr.errors.first.try(:message) || "Неизвестная ошибка" ]
+          [ false, tr.errors.try(:messages) || "Неизвестная ошибка" ]
         end
 
       rescue => e
@@ -181,7 +182,7 @@ class GpbTransaction
         if tr.with(safe: true).save
           [ true, "Оплата разрешена", tr.id.to_s ]
         else
-          [ false, tr.errors.first.try(:message) || "Неизвестная ошибка" ]
+          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
         end
 
       rescue => e
@@ -234,7 +235,7 @@ class GpbTransaction
         if tr.with(safe: true).save
           [ true, tr.state_code == 301 ? "Оплата успешна" : "Счет на оплату отменен" ]
         else
-          [ false, tr.errors.first.try(:message) || "Неизвестная ошибка" ]
+          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
         end
 
       rescue => e

@@ -86,7 +86,7 @@ module GpbMerchant
       merch_id:   params[:merch_id],
       order_uri:  params[:order_uri],
       amount:     (params[:amount].try(:to_f) || 0),
-      checked_at: params[:ts].to_time
+      checked_at: params[:ts].try(:to_time)
 
     })
 
