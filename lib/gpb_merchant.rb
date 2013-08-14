@@ -60,7 +60,7 @@ module GpbMerchant
 
     uri = ::URI.encode_www_form({
 
-      :LANG         => "RU",
+      :lang         => "RU",
       :merch_id     => self.merch_id,
       :back_url_s   => self.back_url_success,
       :back_url_f   => self.back_url_failure,
