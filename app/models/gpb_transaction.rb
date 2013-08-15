@@ -57,10 +57,10 @@ class GpbTransaction
   field :card_masked  , type: String
 
   # Статус операции
-  field :state_code  , type: Integer,  default: 101
+  field :state_code  , type: Integer,   default: 101
 
   # Итоговая стоимость заказа в копейках
-  field :price        , type: Integer,    default: 0
+  field :price       , type: Integer,    default: 0
 
 
   validates_presence_of   :trx_id,
@@ -123,21 +123,23 @@ class GpbTransaction
     def init(order_uri)
 
       order = Order.where(uri: order_uri).first
-      tr = new
-      tr.merch_id     = ::GpbMerchant.merch_id
-      tr.account_id   = ::GpbMerchant.account_id
-      tr.order_uri    = order_uri
-      tr.phone        = order.try(:phone_number)
-      tr.fio          = order.try(:fio)
-      tr.price        = order.try(:price).try(:*, 100).try(:to_i)
-      tr.state_code   = 101
+      return [ false, "Заказ не найден" ] unless order
 
       begin
+
+        tr = new
+        tr.merch_id     = ::GpbMerchant.merch_id
+        tr.account_id   = ::GpbMerchant.account_id
+        tr.order_uri    = order_uri
+        tr.phone        = order.try(:phone_number)
+        tr.fio          = order.try(:fio)
+        tr.price        = (order.price * 100).to_i
+        tr.state_code   = 101
 
         if tr.with(safe: true).save
           [ true, "Счет на оплату выставлен" ]
         else
-          [ false, tr.errors.try(:messages) || "Неизвестная ошибка" ]
+          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
         end
 
       rescue => e

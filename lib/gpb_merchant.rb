@@ -58,6 +58,9 @@ module GpbMerchant
   # Ссылка на оплату заказа
   def url_for_payment(order_uri)
 
+    order = ::GpbTransaction.where(:order_uri => order_uri).first
+    return unless order
+
     uri = ::URI.encode_www_form({
 
       :lang         => "RU",
@@ -65,7 +68,7 @@ module GpbMerchant
       :back_url_s   => self.back_url_success,
       :back_url_f   => self.back_url_failure,
       "o.order_uri" => order_uri,
-      "o.amount"    => (Order.where(uri: order_uri).first.price.to_f*100).to_i
+      "o.amount"    => order.price
 
     })
 
