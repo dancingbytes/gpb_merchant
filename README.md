@@ -12,6 +12,8 @@ GpbMerchant.account_id          'your_account_id'
 GpbMerchant.back_url_success    'https://www.you_mega_shop.com/order/success_url'
 GpbMerchant.back_url_failure    'https://www.you_mega_shop.com/order/failure_url'
 GpbMerchant.pps_url             'https://test.pps.gazprombank.ru/payment/start.wsm'
+GpbMerchant.cert_file           'path to public certificate file provided to you by bank'
+GpbMerchant.fullhostpath        'https://www.you_mega_shop.com'
 ```
 
 ### Use
