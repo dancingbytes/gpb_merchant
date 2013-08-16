@@ -321,19 +321,19 @@ class GpbTransaction
 
     case self.state_code.try(:to_i)
 
-      case 101 then
+      when 101 then
         "Счет выставлен"
 
-      case 201 then
+      when 201 then
         "Проверено"
 
-      case 301 then
+      when 301 then
         "Оплачено"
 
-      case 401 then
+      when 401 then
         "Отменено"
 
-      case 402 then
+      when 402 then
         "Отклонено"
 
       else
