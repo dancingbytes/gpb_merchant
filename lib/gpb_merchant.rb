@@ -55,6 +55,19 @@ module GpbMerchant
 
   end # pps_url
 
+  # path to cert file
+  def cert_file(v = nil)
+
+    @cert_file = File.read(v) unless v.nil?
+    @cert_file
+
+  end # cert_file
+
+  def fullhostpath(v = nil)
+    @fullhostpath = URI.parse('v') unless v.nil
+    @fullhostpath
+  end
+
   # Ссылка на оплату заказа
   def url_for_payment(order_uri)
 
@@ -124,6 +137,7 @@ module GpbMerchant
       time[:sec_fraction],
       time[:zone]) rescue nil
 
+
     result, msg = ::GpbTransaction.complete({
 
       merch_id:     params[:merch_id],
@@ -147,7 +161,7 @@ module GpbMerchant
       # TODO: пока не знаю, что с этим параметром делать
       fully_auth:   params[:fully_auth] == 'Y',
 
-      signature:    params[:signature]
+      verified:    params[:verified]
 
     })
 
@@ -161,6 +175,18 @@ module GpbMerchant
   def cancel_payment(order_uri)
     ::GpbTransaction.cancel(order_uri)
   end # cancel_payment
+
+  # signature in Base64
+  def verify_signature(signature)
+    data = fullhostpath.to_s
+    public_key = OpenSSL::X509::Certificate.new(::GpbMerchant.cert_file).public_key
+    public_key.verify(OpenSSL::Digest::SHA1.new(data), Base64.decode64(signature), data)
+  end
+
+  def construct_data(path,query)
+    fullhostpath.path = path
+    fullhostpath.query = query
+  end
 
   # Логирование
   def log(str, mark = "GpbMerchant")

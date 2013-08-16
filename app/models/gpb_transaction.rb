@@ -207,6 +207,7 @@ class GpbTransaction
       }).first
 
       return [ false, "Счет на оплату не выставлен" ] unless tr
+      return [ false, "Сигнатура не прошла проверку"] unless params[:verified]
 
       if tr.state_code == 101
         return [ false, "Необходимо произвезти проверку платежа" ]
