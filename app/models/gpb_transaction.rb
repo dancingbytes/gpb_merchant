@@ -60,7 +60,7 @@ class GpbTransaction
   field :state_code  , type: Integer,   default: 101
 
   # Итоговая стоимость заказа в копейках
-  field :price       , type: Integer,    default: 0
+  field :price       , type: Integer,   default: 0
 
 
   validates_presence_of   :trx_id,
@@ -92,11 +92,12 @@ class GpbTransaction
 
   validate :valid_order?
 
-  index({
-    order_uri:  1
-  }, {
-    background:  true
-  })
+  index({ order_uri:    1 }, { background:  true })
+  index({ state_code:   1 }, { background:  true })
+  index({ updated_at:   1 }, { background:  true })
+  index({ fio:          1 }, { background:  true })
+  index({ phone:        1 }, { background:  true })
+  index({ card_holder:  1 }, { background:  true })
 
   index({
 
@@ -116,6 +117,35 @@ class GpbTransaction
 
   # При любом изменении записи обновляем дату изменения
   before_save     ->() { self.updated_at = ::Time.now.utc }
+
+  scope :filter_by, ->(s = nil, b = nil, e = nil) {
+
+    req = self.criteria
+
+    req = req.where(:updated_at.gte => b.try(:to_time)) unless b.blank?
+    req = req.where(:updated_at.lt  => e.try(:to_time).try(:+, 24.hours)) unless e.blank?
+
+    s.clean_whitespaces!
+
+    unless s.blank?
+
+      re = ::Regexp.escape(s)
+
+      req = req.any_of({
+        order_uri: s
+      }, {
+        fio: /#{re}/i,
+      }, {
+        phone: /#{re}/i
+      }, {
+        card_holder: /#{re}/i
+      })
+
+    end
+
+    req
+
+  } # filter_by
 
   class << self
 
@@ -172,7 +202,7 @@ class GpbTransaction
       delta = tr.price - params[:amount].try(:to_i)
 
       return [false,
-        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price.to_f/100} руб.)"
+        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price_f} руб.)"
       ] if delta > 0 || delta < 0
 
       # Сохраняем данные
@@ -221,7 +251,7 @@ class GpbTransaction
       delta = tr.price - params[:amount].try(:to_i)
 
       return [false,
-        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price.to_f/100} руб.)"
+        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price_f} руб.)"
       ] if delta > 0 || delta < 0
 
       # Сохраняем данные
@@ -284,6 +314,26 @@ class GpbTransaction
   def order
     @order ||= ::Order.where(uri: self.order_uri).first
   end # order
+
+  def price_f
+    (self.price.to_f / 100).round(2)
+  end # price_f
+
+  def checked?
+    self.state_code >= 201
+  end # checked?
+
+  def accepted?
+    self.state_code == 301
+  end # accepted?
+
+  def canceled?
+    self.state_code == 401
+  end # canceled?
+
+  def rejected?
+    self.state_code == 402
+  end # rejected?
 
   private
 
