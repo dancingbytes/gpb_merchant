@@ -317,6 +317,32 @@ class GpbTransaction
     @order ||= ::Order.where(uri: self.order_uri).first
   end # order
 
+  def state_name
+
+    case self.state_code.try(:to_i)
+
+      case 101 then
+        "Счет выставлен"
+
+      case 201 then
+        "Проверено"
+
+      case 301 then
+        "Оплачено"
+
+      case 401 then
+        "Отменено"
+
+      case 402 then
+        "Отклонено"
+
+      else
+        "Неизвестно"
+
+    end # case
+
+  end # state_name
+
   def price_f
     (self.price.to_f / 100).round(2)
   end # price_f
