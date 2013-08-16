@@ -230,6 +230,8 @@ class GpbTransaction
     # Проведение платежа
     def complete(params)
 
+      return [ false, "Сигнатура не прошла проверку"] unless params[:verified]
+
       tr = where({
         merch_id:   params[:merch_id],
         order_uri:  params[:order_uri],
@@ -237,7 +239,6 @@ class GpbTransaction
       }).first
 
       return [ false, "Счет на оплату не выставлен" ] unless tr
-      return [ false, "Сигнатура не прошла проверку"] unless params[:verified]
 
       if tr.state_code == 101
         return [ false, "Необходимо произвезти проверку платежа" ]

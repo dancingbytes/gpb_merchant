@@ -58,15 +58,22 @@ module GpbMerchant
   # path to cert file
   def cert_file(v = nil)
 
-    @cert_file = File.read(v) unless v.nil?
+    unless v.nil?
+
+      throw ArgumentError, "File #{v} not found" unless File.exist?(v)
+      @cert_file = File.read(v)
+
+    end
     @cert_file
 
   end # cert_file
 
   def fullhostpath(v = nil)
-    @fullhostpath = URI.parse('v') unless v.nil
+
+    @fullhostpath = URI.parse(v) unless v.nil
     @fullhostpath
-  end
+
+  end # fullhostpath
 
   # Ссылка на оплату заказа
   def url_for_payment(order_uri)
@@ -161,7 +168,7 @@ module GpbMerchant
       # TODO: пока не знаю, что с этим параметром делать
       fully_auth:   params[:fully_auth] == 'Y',
 
-      verified:    params[:verified]
+      verified:     params[:verified]
 
     })
 
@@ -178,15 +185,21 @@ module GpbMerchant
 
   # signature in Base64
   def verify_signature(signature)
+
+    return false if ::GpbMerchant.cert_file.blank?
+
     data = fullhostpath.to_s
     public_key = OpenSSL::X509::Certificate.new(::GpbMerchant.cert_file).public_key
     public_key.verify(OpenSSL::Digest::SHA1.new(data), Base64.decode64(signature), data)
-  end
 
-  def construct_data(path,query)
-    fullhostpath.path = path
-    fullhostpath.query = query
-  end
+  end # verify_signature
+
+  def construct_data(path, query)
+
+    fullhostpath.path   = path
+    fullhostpath.query  = query
+
+  end # construct_data
 
   # Логирование
   def log(str, mark = "GpbMerchant")
