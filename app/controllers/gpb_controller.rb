@@ -21,6 +21,7 @@ class GpbController < ApplicationController
   end # check
 
   def pay
+    ::GpbMerchant.construct_data(request.env['REQUEST_PATH'], request.env['QUERY_STRING'].gsub(/&signature=.+$/))
 
     render xml: ::GpbMerchant.register_payment({
 
@@ -44,9 +45,7 @@ class GpbController < ApplicationController
       card_masked:  params['p.maskedPan'],
 
       fully_auth:   params['p.isFullyAuthenticated'],
-
-      signature:    params['signature']
-
+      verified:     ::GpbMerchant.verify_signature(params[:signature])
     })
 
   end # pay
