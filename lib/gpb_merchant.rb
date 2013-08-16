@@ -110,7 +110,7 @@ module GpbMerchant
       merch_id:   params[:merch_id],
       order_uri:  params[:order_uri],
       amount:     (params[:amount].try(:to_i) || 0),
-      checked_at: params[:ts].try(:to_time)
+      checked_at: params[:checked_at].try(:to_time)
 
     })
 
@@ -130,19 +130,18 @@ module GpbMerchant
   def register_payment(params)
 
     # Разбираем время авторизационного запроса в формате «MMddHHmmss»
-    m1 = Date._strptime(params[:ts],"%Y%m%d %H:%M:%S")
+    time = Date._strptime(params[:transmission_at], "%m%d%H%M%S")
 
     # Пробуем преобразовать в дату
     # Дописать потом зону
     transmission_at =  ::Time.local(
-      time[:year],
+      Time.now.year,
       time[:mon],
       time[:mday],
       time[:hour],
       time[:min],
-      time[:sec],
-      time[:sec_fraction],
-      time[:zone]) rescue nil
+      time[:sec]
+    ) rescue nil
 
 
     result, msg = ::GpbTransaction.complete({
@@ -160,7 +159,7 @@ module GpbMerchant
       rrn:          params[:rrn],
 
       transmission_at: transmission_at,
-      payed_at:     transmission_at,
+      payed_at:     params[:payed_at].try(:to_time),
 
       card_holder:  params[:card_holder],
       card_masked:  params[:card_masked],

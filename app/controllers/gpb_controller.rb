@@ -14,7 +14,8 @@ class GpbController < ApplicationController
       trx_id:     params['trx_id'],
       merch_id:   params['merch_id'],
       order_uri:  params['o.order_uri'],
-      amount:     params['o.amount']
+      amount:     params['o.amount'],
+      checked_at: params['ts']
 
     })
 
@@ -42,8 +43,7 @@ class GpbController < ApplicationController
       rrn:          params['p.rrn'],
 
       transmission_at: params['p.transmissionDateTime'],
-      ts:           params['ts'],
-      payed_at:     params['td'],
+      payed_at:     params['ts'],
 
       card_holder:  params['p.cardholder'],
       card_masked:  params['p.maskedPan'],
