@@ -165,14 +165,30 @@ class GpbTransaction
     def init(order_uri)
 
       order = Order.where(uri: order_uri).first
-      return [ false, "Заказ не найден" ] unless order
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Заказ не найден",
+          "GpbTransaction.init [#{params[:order_uri]}]"
+        )
+
+      ] unless order
 
       bool = where({
         merch_id:   ::GpbMerchant.merch_id,
         order_uri:  order_uri
       }).first
 
-      return [ false, "Счет на оплату уже выставлен" ] if bool
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Счет на оплату уже выставлен",
+          "GpbTransaction.init [#{params[:order_uri]}]"
+        )
+
+      ] if bool
 
       begin
 
@@ -188,12 +204,22 @@ class GpbTransaction
         if tr.with(safe: true).save
           [ true, "Счет на оплату выставлен" ]
         else
-          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
+
+          [
+
+            false,
+            GpbMerchant.log(
+              tr.errors.first.last || "Неизвестная ошибка",
+              "GpbTransaction.init [#{params[:order_uri]}]"
+            )
+
+          ]
+
         end
 
       rescue => e
 
-        ::GpbMerchant.log(e.message, "GpbMerchant[init]")
+        ::GpbMerchant.log(e.message, "GpbTransaction.init [#{params[:order_uri]}]")
         [ false, "Ошибка сервера" ]
 
       end
@@ -220,20 +246,65 @@ class GpbTransaction
         order_uri:  params[:order_uri]
       }).first
 
-      return [ false, "Счет на оплату не выставлен" ] unless tr
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Счет на оплату не выставлен"
+          "GpbTransaction.check [#{params[:order_uri]}]"
+        )
+
+      ] unless tr
 
       if tr.state_code == 201
-        return [ false, "Оплата уже прошла проверку" ]
+
+        return [
+
+          false,
+          GpbMerchant.log(
+            "Оплата уже прошла проверку",
+            "GpbTransaction.check [#{params[:order_uri]}]"
+          )
+
+        ]
+
       elsif tr.state_code == 301
-        return [ false, "Оплата завершена ранее" ]
+
+        return [
+
+          false,
+          GpbMerchant.log(
+            "Оплата завершена ранее",
+            "GpbTransaction.check [#{params[:order_uri]}]"
+          )
+
+        ]
+
       elsif tr.state_code == 401
-        return [ false, "Выставленный счет отменен" ]
+
+        return [
+
+          false,
+          GpbMerchant.log(
+            "Выставленный счет отменен",
+            "GpbTransaction.check [#{params[:order_uri]}]"
+          )
+
+        ]
+
       end
 
       delta = tr.price - params[:amount].try(:to_i)
 
-      return [false,
-        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price_f} руб.)"
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует " <<
+          "заявленой стоиомсти заказа (#{tr.price_f} руб.)",
+          "GpbTransaction.check [#{params[:order_uri]}]"
+        )
+
       ] if delta > 0 || delta < 0
 
       # Сохраняем данные
@@ -246,12 +317,22 @@ class GpbTransaction
         if tr.with(safe: true).save
           [ true, "Оплата разрешена", tr.id.to_s ]
         else
-          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
+
+          [
+
+            false,
+            GpbMerchant.log(
+              tr.errors.first.last || "Неизвестная ошибка",
+              "GpbTransaction.check [#{params[:order_uri]}]"
+            )
+
+          ]
+
         end
 
       rescue => e
 
-        ::GpbMerchant.log(e.message, "GpbMerchant[check]")
+        ::GpbMerchant.log(e.message, "GpbTransaction.check [#{params[:order_uri]}]")
         [ false, "Ошибка сервера" ]
 
       end
@@ -261,7 +342,15 @@ class GpbTransaction
     # Проведение платежа
     def complete(params)
 
-      return [ false, "Сигнатура не прошла проверку"] unless params[:verified]
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Сигнатура не прошла проверку",
+          "GpbTransaction.complete [#{params[:order_uri]}]"
+        )
+
+      ] unless params[:verified]
 
       tr = where({
         merch_id:   params[:merch_id],
@@ -269,22 +358,77 @@ class GpbTransaction
         trx_id:     params[:trx_id]
       }).first
 
-      return [ false, "Счет на оплату не выставлен" ] unless tr
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Счет на оплату не выставлен",
+          "GpbTransaction.complete [#{params[:order_uri]}]"
+        )
+
+      ] unless tr
 
       if tr.state_code == 101
-        return [ false, "Необходимо произвезти проверку платежа" ]
+
+        return [
+
+          false,
+          GpbMerchant.log(
+            "Необходимо произвезти проверку платежа",
+            "GpbTransaction.complete [#{params[:order_uri]}]"
+          )
+
+        ]
+
       elsif tr.state_code == 301
-        return [ false, "Оплата завершена ранее" ]
+
+        return [
+
+          false,
+          GpbMerchant.log(
+            "Оплата завершена ранее",
+            "GpbTransaction.complete [#{params[:order_uri]}]"
+          )
+
+        ]
+
       elsif tr.state_code == 401
-        return [ false, "Выставленный счет отменен" ]
+
+        return [
+
+          false,
+          GpbMerchant.log(
+            "Выставленный счет отменен",
+            "GpbTransaction.complete [#{params[:order_uri]}]"
+          )
+
+        ]
+
       elsif tr.id.to_s != params[:merchant_trx]
-        return [ false, "Неверный идентификатор операции" ]
+
+        return [
+
+          false,
+          GpbMerchant.log(
+            "Неверный идентификатор операции",
+            "GpbTransaction.complete [#{params[:order_uri]}]"
+          )
+
+        ]
+
       end
 
       delta = tr.price - params[:amount].try(:to_i)
 
-      return [false,
-        "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует заявленой стоиомсти заказа (#{tr.price_f} руб.)"
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Сумма оплаты (#{params[:amount].to_f/100} руб.) " <<
+          "не соотвествует заявленой стоиомсти заказа (#{tr.price_f} руб.)",
+          "GpbTransaction.complete [#{params[:order_uri]}]"
+        )
+
       ] if delta > 0 || delta < 0
 
       # Сохраняем данные
@@ -309,16 +453,36 @@ class GpbTransaction
             [ true, "Оплата успешна" ]
 
           else
-            [ true, "Счет на оплату отклонен" ]
+
+            [
+
+              true,
+              GpbMerchant.log(
+                "Счет на оплату отклонен",
+                "GpbTransaction.complete [#{params[:order_uri]}]"
+              )
+
+            ]
+
           end
 
         else
-          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
+
+          [
+
+            false,
+            GpbMerchant.log(
+              tr.errors.first.last || "Неизвестная ошибка",
+              "GpbTransaction.complete [#{params[:order_uri]}]"
+            )
+
+          ]
+
         end
 
       rescue => e
 
-        ::GpbMerchant.log(e.message, "GpbMerchant[complete]")
+        ::GpbMerchant.log(e.message, "GpbTransaction.complete [#{params[:order_uri]}]")
         [ false, "Ошибка сервера" ]
 
       end
@@ -333,7 +497,15 @@ class GpbTransaction
         order_uri: order_uri
       }).first
 
-      return [ false, "Счет не был выставлен для указанного заказа." ] unless tr
+      return [
+
+        false,
+        GpbMerchant.log(
+          "Счет не был выставлен для указанного заказа.",
+          "GpbTransaction.cancel [#{order_uri}]"
+        )
+
+      ] unless tr
 
       # Если операций по счету еще не производилось -- удаляем данные
       if tr.state_code <= 101
@@ -348,12 +520,22 @@ class GpbTransaction
         if tr.with(safe: true).save
           [ true, "Счет на оплату отменен" ]
         else
-          [ false, tr.errors.first.last || "Неизвестная ошибка" ]
+
+          [
+
+            false,
+            GpbMerchant.log(
+              tr.errors.first.last || "Неизвестная ошибка",
+              "GpbTransaction.cancel [#{order_uri}]"
+            )
+
+          ]
+
         end
 
       rescue => e
 
-        ::GpbMerchant.log(e.message, "GpbMerchant[cancel]")
+        ::GpbMerchant.log(e.message, "GpbTransaction.cancel [#{order_uri}]")
         [ false, "Ошибка сервера" ]
 
       end
