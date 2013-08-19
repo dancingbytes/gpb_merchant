@@ -111,7 +111,7 @@ module GpbMerchant
 
     ::GpbMerchant::XmlBuilder.check_response({
 
-      order_id:         params[:order_uri],
+      order_uri:        params[:order_uri],
       merchant_trx_id:  id,
       amount:           (params[:amount].try(:to_i) || 0),
       currency:         643,
