@@ -24,8 +24,8 @@ module GpbMerchant
 
             xml.purchase do
 
-              xml.shortDesc "Order ##{data[:order_uri]}"
-              xml.longDesc  "Order ##{data[:order_uri]}"
+              xml.shortDesc "Заказ № #{data[:order_uri]}"
+              xml.longDesc  "Олата за заказ № #{data[:order_uri]}"
 
               xml.send(:"account-amount") do
 
