@@ -250,7 +250,7 @@ class GpbTransaction
 
         false,
         GpbMerchant.log(
-          "Счет на оплату не выставлен"
+          "Счет на оплату не выставлен",
           "GpbTransaction.check [#{params[:order_uri]}]"
         )
 
