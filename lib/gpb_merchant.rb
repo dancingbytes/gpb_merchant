@@ -215,7 +215,7 @@ module GpbMerchant
     return false if fullhostpath.nil?
 
     fullhostpath.path   = path
-    fullhostpath.query  = query
+    fullhostpath.query  = query.gsub(/&signature=.+$/, "")
     fullhostpath
 
   end # construct_data

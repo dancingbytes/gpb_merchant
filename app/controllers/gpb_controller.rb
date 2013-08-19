@@ -25,7 +25,7 @@ class GpbController < ApplicationController
 
     ::GpbMerchant.construct_data(
       request.env['REQUEST_PATH'],
-      request.env['QUERY_STRING'].gsub(/&signature=.+$/, "")
+      request.env['QUERY_STRING']
     )
 
     render xml: ::GpbMerchant.register_payment({
