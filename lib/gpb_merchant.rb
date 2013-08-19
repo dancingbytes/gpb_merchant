@@ -34,20 +34,6 @@ module GpbMerchant
 
   end # account_id
 
-  def back_url_success(v = nil)
-
-    @back_url_success = v unless v.nil?
-    @back_url_success
-
-  end # back_url_success
-
-  def back_url_failure(v = nil)
-
-    @back_url_failure = v unless v.nil?
-    @back_url_failure
-
-  end # back_url_failure
-
   def pps_url(v = nil)
 
     @pps_url = v unless v.nil?
@@ -68,7 +54,7 @@ module GpbMerchant
 
   end # success_payment_callback
 
-  # path to cert file
+  # Путь к файлу сертифката
   def cert_file(v = nil)
 
     unless v.nil?
@@ -84,13 +70,13 @@ module GpbMerchant
 
   def fullhostpath(v = nil)
 
-    @fullhostpath = URI.parse(v) unless v.nil
+    @fullhostpath = URI.parse(v) unless v.nil?
     @fullhostpath
 
   end # fullhostpath
 
   # Ссылка на оплату заказа
-  def url_for_payment(order_uri)
+  def url_for_payment(order_uri, back_url_success = nil, back_url_failure = nil)
 
     order = ::GpbTransaction.where(:order_uri => order_uri).first
     return unless order
@@ -99,8 +85,8 @@ module GpbMerchant
 
       :lang         => "RU",
       :merch_id     => self.merch_id,
-      :back_url_s   => self.back_url_success,
-      :back_url_f   => self.back_url_failure,
+      :back_url_s   => back_url_success,
+      :back_url_f   => back_url_failure || back_url_success,
       "o.order_uri" => order_uri,
       "o.amount"    => order.price
 
@@ -196,6 +182,7 @@ module GpbMerchant
     ::GpbTransaction.cancel(order_uri)
   end # cancel_payment
 
+  # Статус оплаты
   def status_bill(order_uri)
 
     ::GpbTransaction.status({
@@ -209,6 +196,7 @@ module GpbMerchant
   def verify_signature(signature)
 
     return false if ::GpbMerchant.cert_file.blank?
+    return false if fullhostpath.nil?
 
     data = fullhostpath.to_s
     public_key = OpenSSL::X509::Certificate.new(::GpbMerchant.cert_file).public_key
@@ -218,8 +206,11 @@ module GpbMerchant
 
   def construct_data(path, query)
 
+    return false if fullhostpath.nil?
+
     fullhostpath.path   = path
     fullhostpath.query  = query
+    fullhostpath
 
   end # construct_data
 
