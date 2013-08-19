@@ -168,10 +168,7 @@ class GpbTransaction
       return [
 
         false,
-        GpbMerchant.log(
-          "Заказ не найден",
-          "GpbTransaction.init [#{params[:order_uri]}]"
-        )
+        "Заказ не найден"
 
       ] unless order
 
@@ -183,10 +180,7 @@ class GpbTransaction
       return [
 
         false,
-        GpbMerchant.log(
-          "Счет на оплату уже выставлен",
-          "GpbTransaction.init [#{params[:order_uri]}]"
-        )
+        "Счет на оплату уже выставлен"
 
       ] if bool
 
@@ -226,18 +220,6 @@ class GpbTransaction
 
     end # init
 
-    # Состояние транзакции
-    def status(params)
-
-      tr = where({
-        merch_id:   params[:merch_id],
-        order_uri:  params[:order_uri]
-      }).first
-
-      tr ? tr.state_code : 0
-
-    end # status
-
     # Проверка платежа
     def check(params)
 
@@ -249,10 +231,7 @@ class GpbTransaction
       return [
 
         false,
-        GpbMerchant.log(
-          "Счет на оплату не выставлен",
-          "GpbTransaction.check [#{params[:order_uri]}]"
-        )
+        "Счет на оплату не выставлен"
 
       ] unless tr
 
@@ -500,10 +479,7 @@ class GpbTransaction
       return [
 
         false,
-        GpbMerchant.log(
-          "Счет не был выставлен для указанного заказа.",
-          "GpbTransaction.cancel [#{order_uri}]"
-        )
+        "Счет не был выставлен для указанного заказа."
 
       ] unless tr
 
@@ -541,6 +517,18 @@ class GpbTransaction
       end
 
     end # cancel
+
+    # Состояние транзакции
+    def status(params)
+
+      tr = where({
+        merch_id:   params[:merch_id],
+        order_uri:  params[:order_uri]
+      }).first
+
+      tr ? tr.state_code : 0
+
+    end # status
 
   end # class << self
 
