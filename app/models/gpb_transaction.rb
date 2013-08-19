@@ -168,8 +168,8 @@ class GpbTransaction
       return [ false, "Заказ не найден" ] unless order
 
       bool = where({
-        merch_id:   params[:merch_id],
-        order_uri:  params[:order_uri]
+        merch_id:   ::GpbMerchant.merch_id,
+        order_uri:  order_uri
       }).exist?
 
       return [ false, "Счет на оплату уже выставлен" ] if bool
