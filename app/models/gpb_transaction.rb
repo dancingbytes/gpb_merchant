@@ -82,7 +82,7 @@ class GpbTransaction
     :if       => ->() { [301].include?(self.state_code) }
 
   validates_uniqueness_of :order_uri,
-    :scope    => [ :trx_id, :merch_id ],
+    :scope    => [ :merch_id ],
     :message  => "Заказ уже находится в обработке"
 
   validates_numericality_of :price,
@@ -101,7 +101,6 @@ class GpbTransaction
 
   index({
 
-    trx_id:     1,
     merch_id:   1,
     order_uri:  1
 
@@ -109,6 +108,19 @@ class GpbTransaction
 
     name:     "gpbt_indx_1",
     unique:   true
+
+  })
+
+  index({
+
+    trx_id:     1,
+    merch_id:   1,
+    order_uri:  1
+
+  }, {
+
+    name:     "gpbt_indx_2",
+    background:   true
 
   })
 
@@ -157,8 +169,7 @@ class GpbTransaction
 
       bool = where({
         merch_id:   params[:merch_id],
-        order_uri:  params[:order_uri],
-        :state_code.lt => 400
+        order_uri:  params[:order_uri]
       }).exist?
 
       return [ false, "Счет на оплату уже выставлен" ] if bool
@@ -189,13 +200,12 @@ class GpbTransaction
 
     end # init
 
-    # Состояние транзакции, чей статус меньше 400
+    # Состояние транзакции
     def status(params)
 
       tr = where({
         merch_id:   params[:merch_id],
-        order_uri:  params[:order_uri],
-        :state_code.lt => 400
+        order_uri:  params[:order_uri]
       }).first
 
       tr ? tr.state_code : 0
