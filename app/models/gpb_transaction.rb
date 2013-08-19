@@ -181,7 +181,7 @@ class GpbTransaction
 
     end # init
 
-    def status(order_uri)
+    def status(params)
 
       tr = where({
         merch_id:   params[:merch_id],

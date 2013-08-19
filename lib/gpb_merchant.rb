@@ -197,7 +197,12 @@ module GpbMerchant
   end # cancel_payment
 
   def status_bill(order_uri)
-    ::GpbTransaction.status(order_uri)
+
+    ::GpbTransaction.status({
+      merch_id:  ::GpbMerchant::merch_id,
+      order_uri: order_uri
+    })
+
   end # status_bill
 
   # signature in Base64
