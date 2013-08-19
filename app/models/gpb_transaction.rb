@@ -317,7 +317,7 @@ class GpbTransaction
 
       # Если операций по счету еще не производилось -- удаляем данные
       if tr.state_code <= 101
-        self.delete
+        tr.delete
         return [ true, "Счет на оплату удален" ]
       end # if
 
