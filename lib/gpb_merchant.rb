@@ -124,20 +124,26 @@ module GpbMerchant
   # Регистрация результата платежа
   def register_payment(params)
 
-    # Разбираем время авторизационного запроса в формате «MMddHHmmss»
-    time = Date._strptime(params[:transmission_at], "%m%d%H%M%S")
+    unless params[:transmission_at].nil?
 
-    # Пробуем преобразовать в дату
-    # Дописать потом зону
-    transmission_at =  ::Time.local(
-      Time.now.year,
-      time[:mon],
-      time[:mday],
-      time[:hour],
-      time[:min],
-      time[:sec]
-    ) rescue nil
+      # Разбираем время авторизационного запроса в формате «MMddHHmmss»
+      time = Date._strptime(params[:transmission_at], "%m%d%H%M%S") rescue nil
 
+      if time
+
+        # Пробуем преобразовать в дату
+        transmission_at = ::Time.local(
+          Time.now.year,
+          time[:mon],
+          time[:mday],
+          time[:hour],
+          time[:min],
+          time[:sec]
+        ) rescue nil
+
+      end # if
+
+    end # unless
 
     result, msg = ::GpbTransaction.complete({
 
