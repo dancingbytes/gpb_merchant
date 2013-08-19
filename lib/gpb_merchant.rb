@@ -55,6 +55,19 @@ module GpbMerchant
 
   end # pps_url
 
+  def success_payment_callback(v = nil)
+
+    unless v.nil?
+
+      throw ArgumentError, "Argument must be a proc or lambda" unless v.is_a?(::Proc)
+      @success_payment_callback = v
+
+    end
+
+    @success_payment_callback
+
+  end # success_payment_callback
+
   # path to cert file
   def cert_file(v = nil)
 
@@ -64,6 +77,7 @@ module GpbMerchant
       @cert_file = File.read(v)
 
     end
+
     @cert_file
 
   end # cert_file
@@ -95,11 +109,6 @@ module GpbMerchant
     "#{pps_url}?#{uri}"
 
   end # url_for_payment
-
-  # Выставление счета
-  def init_payment(order_uri)
-    ::GpbTransaction.init(order_uri)
-  end # init_payment
 
   # Проверка возможности приема платежа
   def check_payment(params)
@@ -177,10 +186,19 @@ module GpbMerchant
 
   end # register_payment
 
+  # Выставление счета
+  def init_payment(order_uri)
+    ::GpbTransaction.init(order_uri)
+  end # init_payment
+
   # Отмена платежа
   def cancel_payment(order_uri)
     ::GpbTransaction.cancel(order_uri)
   end # cancel_payment
+
+  def status_bill(order_uri)
+    ::GpbTransaction.status(order_uri)
+  end # status_bill
 
   # signature in Base64
   def verify_signature(signature)

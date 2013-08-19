@@ -181,6 +181,17 @@ class GpbTransaction
 
     end # init
 
+    def status(order_uri)
+
+      tr = where({
+        merch_id:   params[:merch_id],
+        order_uri:  params[:order_uri]
+      }).first
+
+      tr ? tr.state_code : 0
+
+    end # status
+
     # Проверка платежа
     def check(params)
 
@@ -268,7 +279,19 @@ class GpbTransaction
       begin
 
         if tr.with(safe: true).save
-          [ true, tr.state_code == 301 ? "Оплата успешна" : "Счет на оплату отменен" ]
+
+          if tr.state_code == 301
+
+            # Переводим заказ в статус "Оплачено" (если задано)
+            clb = ::GpbMerchant.success_payment_callback
+            clb.call(self.order_uri) if clb.is_a?(::Proc)
+
+            [ true, "Оплата успешна" ]
+
+          else
+            [ true, "Счет на оплату отклонен" ]
+          end
+
         else
           [ false, tr.errors.first.last || "Неизвестная ошибка" ]
         end
@@ -291,6 +314,12 @@ class GpbTransaction
       }).first
 
       return [ false, "Счет не был выставлен для указанного заказа." ] unless tr
+
+      # Если операций по счету еще не производилось -- удаляем данные
+      if tr.state_code <= 101
+        self.delete
+        return [ true, "Счет на оплату удален" ]
+      end # if
 
       tr.state_code = 401 # отмена
 
