@@ -155,6 +155,14 @@ class GpbTransaction
       order = Order.where(uri: order_uri).first
       return [ false, "Заказ не найден" ] unless order
 
+      bool = where({
+        merch_id:   params[:merch_id],
+        order_uri:  params[:order_uri],
+        :state_code.lt => 400
+      }).exist?
+
+      return [ false, "Счет на оплату уже выставлен" ] if bool
+
       begin
 
         tr = new
@@ -181,11 +189,13 @@ class GpbTransaction
 
     end # init
 
+    # Состояние транзакции, чей статус меньше 400
     def status(params)
 
       tr = where({
         merch_id:   params[:merch_id],
-        order_uri:  params[:order_uri]
+        order_uri:  params[:order_uri],
+        :state_code.lt => 400
       }).first
 
       tr ? tr.state_code : 0
