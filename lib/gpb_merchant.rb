@@ -59,7 +59,7 @@ module GpbMerchant
 
     unless v.nil?
 
-      throw ArgumentError, "Argument must be a proc or lambda" unless v.is_a?(::Proc)
+      raise ArgumentError, "Argument must be a proc or lambda" unless v.is_a?(::Proc)
       @success_payment_callback = v
 
     end
@@ -73,7 +73,7 @@ module GpbMerchant
 
     unless v.nil?
 
-      throw ArgumentError, "File #{v} not found" unless File.exist?(v)
+      raise ArgumentError, "File #{v} not found" unless File.exist?(v)
       @cert_file = File.read(v)
 
     end
