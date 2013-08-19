@@ -170,7 +170,7 @@ class GpbTransaction
       bool = where({
         merch_id:   ::GpbMerchant.merch_id,
         order_uri:  order_uri
-      }).exist?
+      }).first
 
       return [ false, "Счет на оплату уже выставлен" ] if bool
 
