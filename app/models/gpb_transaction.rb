@@ -427,7 +427,7 @@ class GpbTransaction
 
             # Переводим заказ в статус "Оплачено" (если задано)
             clb = ::GpbMerchant.success_payment_callback
-            clb.call(self.order_uri) if clb.is_a?(::Proc)
+            clb.call(tr.order_uri) if clb.is_a?(::Proc)
 
             [ true, "Оплата успешна" ]
 
