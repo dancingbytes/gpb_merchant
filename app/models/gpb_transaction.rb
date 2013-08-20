@@ -408,7 +408,7 @@ class GpbTransaction
           "GpbTransaction.complete [#{params[:order_uri]}]"
         )
 
-      ] if delta.abs
+      ] if delta.abs > 0
 
       # Сохраняем данные
       tr.state_code   = (params[:result_code] == 1 ? 301 : 402)
