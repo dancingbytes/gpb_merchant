@@ -190,7 +190,7 @@ class GpbTransaction
         tr.merch_id     = ::GpbMerchant.merch_id
         tr.account_id   = ::GpbMerchant.account_id
         tr.order_uri    = order_uri
-        tr.phone        = order.try(:phone_number)
+        tr.phone        = (order.try(:phone_number) || "").gsub(/\D/, "")
         tr.fio          = order.try(:fio)
         tr.price        = (order.price * 100).to_i
         tr.state_code   = 101
