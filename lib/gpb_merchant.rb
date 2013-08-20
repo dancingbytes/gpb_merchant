@@ -205,8 +205,6 @@ module GpbMerchant
     return false if fullhostpath.nil?
 
     data = fullhostpath.to_s
-    puts "verify_signature [data]: #{data}"
-    puts "signature: #{signature}"
     public_key = OpenSSL::X509::Certificate.new(::GpbMerchant.cert_file).public_key
     public_key.verify(OpenSSL::Digest::SHA1.new(data), Base64.decode64(signature), data)
 
