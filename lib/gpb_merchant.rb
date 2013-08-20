@@ -238,12 +238,12 @@ module GpbMerchant
 
     if mark
 
-      ::Rails.logger.tagged(mark) {
+      ::Rails.logger.tagged("#{::Time.now}. #{mark}") {
         ::Rails.logger.error(str)
       }
 
     else
-      ::Rails.logger.error(str)
+      ::Rails.logger.error("#{::Time.now}. #{str}")
     end
 
     str
