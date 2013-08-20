@@ -284,7 +284,7 @@ class GpbTransaction
           "GpbTransaction.check [#{params[:order_uri]}]"
         )
 
-      ] if delta > 0 || delta < 0
+      ] if delta.abs > 0
 
       # Сохраняем данные
       tr.state_code = 201
@@ -408,7 +408,7 @@ class GpbTransaction
           "GpbTransaction.complete [#{params[:order_uri]}]"
         )
 
-      ] if delta > 0 || delta < 0
+      ] if delta.abs
 
       # Сохраняем данные
       tr.state_code   = (params[:result_code] == 1 ? 301 : 402)
@@ -432,6 +432,10 @@ class GpbTransaction
             [ true, "Оплата успешна" ]
 
           else
+
+            # Переводим заказ в статус "Отменено" (если задано)
+            clb = ::GpbMerchant.failure_payment_callback
+            clb.call(tr.order_uri) if clb.is_a?(::Proc)
 
             [
 
@@ -494,7 +498,13 @@ class GpbTransaction
       begin
 
         if tr.with(safe: true).save
+
+          # Переводим заказ в статус "Отменено" (если задано)
+          clb = ::GpbMerchant.failure_payment_callback
+          clb.call(tr.order_uri) if clb.is_a?(::Proc)
+
           [ true, "Счет на оплату отменен" ]
+
         else
 
           [

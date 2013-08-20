@@ -54,6 +54,19 @@ module GpbMerchant
 
   end # success_payment_callback
 
+  def failure_payment_callback(v = nil)
+
+    unless v.nil?
+
+      raise ArgumentError, "Argument must be a proc or lambda" unless v.is_a?(::Proc)
+      @failure_payment_callback = v
+
+    end
+
+    @failure_payment_callback
+
+  end # failure_payment_callback
+
   # Путь к файлу сертифката
   def cert_file(v = nil)
 
