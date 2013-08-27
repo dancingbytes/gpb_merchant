@@ -94,7 +94,7 @@ class GpbTransaction
 
   index({ order_uri:    1 }, { background:  true })
   index({ state_code:   1 }, { background:  true })
-  index({ updated_at:   1 }, { background:  true })
+  index({ payed_at:     1 }, { background:  true })
   index({ fio:          1 }, { background:  true })
   index({ phone:        1 }, { background:  true })
   index({ card_holder:  1 }, { background:  true })
@@ -134,8 +134,8 @@ class GpbTransaction
 
     req = self.criteria
 
-    req = req.where(:updated_at.gte => b.try(:to_time)) unless b.blank?
-    req = req.where(:updated_at.lt  => e.try(:to_time).try(:+, 24.hours)) unless e.blank?
+    req = req.where(:payed_at.gte => b.try(:to_time)) unless b.blank?
+    req = req.where(:payed_at.lt  => e.try(:to_time).try(:+, 24.hours)) unless e.blank?
 
     s.clean_whitespaces!
 
