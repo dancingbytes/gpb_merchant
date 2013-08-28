@@ -134,8 +134,11 @@ class GpbTransaction
 
     req = self.criteria
 
-    req = req.where(:payed_at.gte => b.try(:to_time)) unless b.blank?
-    req = req.where(:payed_at.lt  => e.try(:to_time).try(:+, 24.hours)) unless e.blank?
+    b = b.try(:to_time).try(:utc)
+    e = e.try(:to_time).try(:+, 24.hours).try(:utc)
+
+    req = req.where(:payed_at.gte => b) unless b.blank?
+    req = req.where(:payed_at.lt  => e) unless e.blank?
 
     s.clean_whitespaces!
 
