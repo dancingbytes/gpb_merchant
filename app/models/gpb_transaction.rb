@@ -472,7 +472,8 @@ class GpbTransaction
 
     end # complete
 
-    # Отмена платежа
+    # Отмена платежа, при условии что счет только выставлен и
+    # операции по счету еще не проводились
     def cancel(order_uri)
 
       tr = where({
@@ -482,7 +483,7 @@ class GpbTransaction
 
       return [
 
-        false,
+        true,
         "Счет не был выставлен для указанного заказа."
 
       ] unless tr
@@ -490,41 +491,10 @@ class GpbTransaction
       # Если операций по счету еще не производилось -- удаляем данные
       if tr.state_code <= 101
         tr.delete
-        return [ true, "Счет на оплату удален" ]
+        return [ true, "Счет на оплату удален." ]
+      else
+        return [ false, "Отмена не возможна, уже произведены операции по счету." ]
       end # if
-
-      tr.state_code = 401 # отмена
-
-      begin
-
-        if tr.with(safe: true).save
-
-          # Переводим заказ в статус "Отменено" (если задано)
-          clb = ::GpbMerchant.failure_payment_callback
-          clb.call(tr.order_uri) if clb.is_a?(::Proc)
-
-          [ true, "Счет на оплату отменен" ]
-
-        else
-
-          [
-
-            false,
-            GpbMerchant.log(
-              tr.errors.first.last || "Неизвестная ошибка",
-              "GpbTransaction.cancel [#{order_uri}]"
-            )
-
-          ]
-
-        end
-
-      rescue => e
-
-        ::GpbMerchant.log(e.message, "GpbTransaction.cancel [#{order_uri}]")
-        [ false, "Ошибка сервера" ]
-
-      end
 
     end # cancel
 
