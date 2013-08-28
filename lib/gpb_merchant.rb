@@ -118,7 +118,7 @@ module GpbMerchant
       merch_id:   params[:merch_id],
       order_uri:  params[:order_uri],
       amount:     (params[:amount].try(:to_i) || 0),
-      checked_at: params[:checked_at].try(:to_time)
+      checked_at: params[:checked_at].try(:to_time).try(:utc)
 
     })
 
@@ -145,7 +145,7 @@ module GpbMerchant
       if time
 
         # Пробуем преобразовать в дату
-        transmission_at = ::Time.local(
+        transmission_at = ::Time.utc(
           Time.now.year,
           time[:mon],
           time[:mday],
@@ -173,7 +173,7 @@ module GpbMerchant
       rrn:          params[:rrn],
 
       transmission_at: transmission_at,
-      payed_at:     params[:payed_at].try(:to_time),
+      payed_at:     params[:payed_at].try(:to_time).try(:utc),
 
       card_holder:  params[:card_holder],
       card_masked:  params[:card_masked],
