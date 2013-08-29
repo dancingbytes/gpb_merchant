@@ -73,14 +73,6 @@ class GpbTransaction
   validates_presence_of   :order_uri,
     :message  => "Не задан номер заказа"
 
-  validates_presence_of   :card_holder,
-    :message  => "Укажите владельца карты",
-    :if       => ->() { [301].include?(self.state_code) }
-
-  validates_presence_of   :card_masked,
-    :message  => "Введите номер карты карты",
-    :if       => ->() { [301].include?(self.state_code) }
-
   validates_uniqueness_of :order_uri,
     :scope    => [ :merch_id ],
     :message  => "Заказ уже находится в обработке"
