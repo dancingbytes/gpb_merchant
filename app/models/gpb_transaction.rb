@@ -536,7 +536,7 @@ class GpbTransaction
 
     self.merch_id     = ::GpbMerchant.merch_id
     self.account_id   = ::GpbMerchant.account_id
-    self.phone        = (selforder.phone_number || "").gsub(/\D/, "")
+    self.phone        = (self.order.phone_number || "").gsub(/\D/, "")
     self.fio          = self.order.fio
     self.price        = (self.order.price * 100).to_i
     self.state_code   = 101
