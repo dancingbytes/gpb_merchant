@@ -159,7 +159,7 @@ class GpbTransaction
     # Инициализация платежа. Выставление счета
     def init(order_uri)
 
-      order = Order.where(uri: order_uri).first
+      order = Order.where({ uri: order_uri }).first
       return [
 
         false,
@@ -167,17 +167,29 @@ class GpbTransaction
 
       ] unless order
 
-      bool = where({
-        merch_id:   ::GpbMerchant.merch_id,
-        order_uri:  order_uri
-      }).first
+      if (tr = where({ order_uri:  order_uri }).first)
 
-      return [
+        unless tr.invoice_for_payment?
+          return [ false, "Счет на оплату уже выставлен" ]
+        end
 
-        false,
-        "Счет на оплату уже выставлен"
+        if tr.invoice_for_payment
+          return [ true, "Счет на оплату выставлен" ]
+        else
 
-      ] if bool
+          return [
+
+            false,
+            GpbMerchant.log(
+              tr.errors.first.last || "Неизвестная ошибка",
+              "GpbTransaction.init [#{params[:order_uri]}]"
+            )
+
+          ]
+
+        end
+
+      end # tr
 
       begin
 
@@ -506,6 +518,36 @@ class GpbTransaction
     end # status
 
   end # class << self
+
+  def invoice_for_payment
+
+    return false unless self.invoice_for_payment?
+    return false if self.order.nil?
+
+    self.checked_at   = nil
+    self.payed_at     = nil
+    self.transmission_at = nil
+
+    self.account_id   = nil
+    self.rrn          = nil
+
+    self.card_holder  = nil
+    self.card_masked  = nil
+
+    self.merch_id     = ::GpbMerchant.merch_id
+    self.account_id   = ::GpbMerchant.account_id
+    self.phone        = (selforder.phone_number || "").gsub(/\D/, "")
+    self.fio          = self.order.fio
+    self.price        = (self.order.price * 100).to_i
+    self.state_code   = 101
+
+    self.with(safe: true).save
+
+  end # invoice_for_payment
+
+  def invoice_for_payment?
+    [401, 402, 101, 0, nil].include?(self.state_code)
+  end # invoice_for_payment?
 
   def order
     @order ||= ::Order.where(uri: self.order_uri).first
