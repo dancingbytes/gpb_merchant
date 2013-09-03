@@ -546,7 +546,7 @@ class GpbTransaction
   end # invoice_for_payment
 
   def invoice_for_payment?
-    [401, 402, 101, 0, nil].include?(self.state_code)
+    [401, 402].include?(self.state_code)
   end # invoice_for_payment?
 
   def order
