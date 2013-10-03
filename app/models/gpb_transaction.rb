@@ -182,7 +182,7 @@ class GpbTransaction
             false,
             GpbMerchant.log(
               tr.errors.first.last || "Неизвестная ошибка",
-              "GpbTransaction.init [#{params[:order_uri]}]"
+              "GpbTransaction.init [#{order_uri}]"
             )
 
           ]
@@ -211,7 +211,7 @@ class GpbTransaction
             false,
             GpbMerchant.log(
               tr.errors.first.last || "Неизвестная ошибка",
-              "GpbTransaction.init [#{params[:order_uri]}]"
+              "GpbTransaction.init [#{order_uri}]"
             )
 
           ]
@@ -220,7 +220,7 @@ class GpbTransaction
 
       rescue => e
 
-        ::GpbMerchant.log(e.message, "GpbTransaction.init [#{params[:order_uri]}]")
+        ::GpbMerchant.log(e.message, "GpbTransaction.init [#{order_uri}]")
         [ false, "Ошибка сервера" ]
 
       end
@@ -228,7 +228,7 @@ class GpbTransaction
     end # init
 
     # Проверка платежа
-    def check(params)
+    def check(params = {})
 
       tr = where({
         merch_id:   params[:merch_id],
