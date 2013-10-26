@@ -14,7 +14,7 @@ GpbMerchant.back_url_failure    'https://www.you_mega_shop.com/order/failure_url
 GpbMerchant.pps_url             'https://test.pps.gazprombank.ru/payment/start.wsm'
 GpbMerchant.cert_file           'path to public certificate file provided to you by bank'
 GpbMerchant.fullhostpath        'https://www.you_mega_shop.com'
-GpbMerchant.success_payment_callback  ->(order_uri) { Order.where(uri: order_uri).try(:to_success_payment) }
+GpbMerchant.success_payment_callback  ->(order_uri) { Order.where(uri: order_uri).try(:first).try(:to_success_payment) }
 ```
 
 ### Use
