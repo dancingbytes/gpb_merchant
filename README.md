@@ -25,7 +25,7 @@ At first create a bill for order:
 
 Then redirect to url:
 
-`GpbMerchant.url_for_payment("0081793")`
+`GpbMerchant.url_for_payment("0081793", "url_for_success_operation", "url_for_faulute_operation")`
 
 ### License
 
