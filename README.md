@@ -12,7 +12,7 @@ GpbMerchant.account_id          'your_account_id'
 GpbMerchant.pps_url             'https://test.pps.gazprombank.ru/payment/start.wsm'
 GpbMerchant.cert_file           'path to public certificate file provided to you by bank'
 GpbMerchant.fullhostpath        'https://www.you_mega_shop.com'
-GpbMerchant.success_payment_callback  ->(order_uri) { Order.where(uri: order_uri).try(:to_success_payment) }
+GpbMerchant.success_payment_callback  ->(order_uri) { Order.where(uri: order_uri).try(:first).try(:to_success_payment) }
 ```
 
 ### Use
@@ -23,7 +23,7 @@ At first create a bill for order:
 
 Then redirect to url:
 
-`GpbMerchant.url_for_payment("0081793", "success_url", "reject_url")`
+`GpbMerchant.url_for_payment("0081793", "url_for_success_operation", "url_for_faulute_operation")`
 
 ### License
 
