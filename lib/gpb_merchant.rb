@@ -250,6 +250,30 @@ module GpbMerchant
 
   end # log
 
+  # Выбирамем ближайший рабочий день для указанной даты
+  def correct_date(date, delta = 6)
+
+    return if date.nil?
+
+    delta       = 0 if delta < 0
+    delta_hours = delta.hours
+
+    t = date.to_time.utc + delta_hours
+
+    if t.hour >= delta
+      t = ::Time.new(t.year, t.month, t.day, 0, 0, 0) + 1.day
+    else
+      t = ::Time.new(t.year, t.month, t.day, 0, 0, 0)
+    end
+
+    while ::Calendar.holiday?(t)
+      t += 1.day
+    end
+
+    (t.utc + delta_hours)
+
+  end # correct_date
+
 end # GpbMerchant
 
 require 'gpb_merchant/xml'

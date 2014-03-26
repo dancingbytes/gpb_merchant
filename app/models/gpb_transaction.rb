@@ -423,7 +423,7 @@ class GpbTransaction
       # Сохраняем данные
       tr.state_code   = (params[:result_code] == 1 ? 301 : 402)
       tr.payed_at     = params[:payed_at]
-      tr.received_at  = ::Calendar.correct_date(params[:payed_at])
+      tr.received_at  = ::GpbMerchant.correct_date(params[:payed_at])
       tr.transmission_at = params[:transmission_at]
       tr.account_id   = params[:account_id]
       tr.rrn          = params[:rrn]
