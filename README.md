@@ -9,8 +9,6 @@ GpbMerchant.login               'you_login'
 GpbMerchant.password            'some_secure_password'
 GpbMerchant.merch_id            'your_merchant_id'
 GpbMerchant.account_id          'your_account_id'
-GpbMerchant.back_url_success    'https://www.you_mega_shop.com/order/success_url'
-GpbMerchant.back_url_failure    'https://www.you_mega_shop.com/order/failure_url'
 GpbMerchant.pps_url             'https://test.pps.gazprombank.ru/payment/start.wsm'
 GpbMerchant.cert_file           'path to public certificate file provided to you by bank'
 GpbMerchant.fullhostpath        'https://www.you_mega_shop.com'
@@ -25,7 +23,7 @@ At first create a bill for order:
 
 Then redirect to url:
 
-`GpbMerchant.url_for_payment("0081793")`
+`GpbMerchant.url_for_payment("0081793", "success_url", "reject_url")`
 
 ### License
 

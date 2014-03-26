@@ -41,6 +41,9 @@ class GpbTransaction
   # Дата регистрации (проведения) платежа
   field :payed_at     , type: Time
 
+  # Примерная дата (с точностью до дня) поступления платежа в банк
+  field :received_at     , type: Time
+
   # Дата авторизационного запроса
   field :transmission_at, type: Time
 
@@ -86,7 +89,7 @@ class GpbTransaction
 
   index({ order_uri:    1 }, { background:  true })
   index({ state_code:   1 }, { background:  true })
-  index({ payed_at:     1 }, { background:  true })
+  index({ received_at:  1 }, { background:  true })
   index({ fio:          1 }, { background:  true })
   index({ phone:        1 }, { background:  true })
   index({ card_holder:  1 }, { background:  true })
@@ -129,8 +132,8 @@ class GpbTransaction
     b = b.try(:to_time).try(:utc)
     e = e.try(:to_time).try(:+, 24.hours).try(:utc)
 
-    req = req.where(:payed_at.gte => b) unless b.blank?
-    req = req.where(:payed_at.lt  => e) unless e.blank?
+    req = req.where(:received_at.gte => b) unless b.blank?
+    req = req.where(:received_at.lt  => e) unless e.blank?
 
     s.clean_whitespaces!
 
@@ -420,6 +423,7 @@ class GpbTransaction
       # Сохраняем данные
       tr.state_code   = (params[:result_code] == 1 ? 301 : 402)
       tr.payed_at     = params[:payed_at]
+      tr.received_at  = ::Calendar.correct_date(params[:payed_at])
       tr.transmission_at = params[:transmission_at]
       tr.account_id   = params[:account_id]
       tr.rrn          = params[:rrn]
@@ -434,7 +438,7 @@ class GpbTransaction
 
             # Переводим заказ в статус "Оплачено" (если задано)
             clb = ::GpbMerchant.success_payment_callback
-            clb.call(tr.order_uri) if clb.is_a?(::Proc)
+            clb.call(tr.order_uri, tr.received_at) if clb.is_a?(::Proc)
 
             [ true, "Оплата успешна" ]
 
