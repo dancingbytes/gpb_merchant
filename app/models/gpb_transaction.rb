@@ -206,7 +206,14 @@ class GpbTransaction
         tr.state_code   = 101
 
         if tr.with(safe: true).save
-          [ true, "Счет на оплату выставлен" ]
+
+          return [
+
+            true,
+            "Счет на оплату выставлен"
+
+          ]
+
         else
 
           [
@@ -224,7 +231,12 @@ class GpbTransaction
       rescue => e
 
         ::GpbMerchant.log(e.message, "GpbTransaction.init [#{order_uri}]")
-        [ false, "Ошибка сервера" ]
+        return [
+
+          false,
+          "Ошибка сервера"
+
+        ]
 
       end
 
@@ -245,19 +257,7 @@ class GpbTransaction
 
       ] unless tr
 
-      if tr.state_code == 201
-
-        return [
-
-          false,
-          GpbMerchant.log(
-            "Оплата уже прошла проверку",
-            "GpbTransaction.check [#{params[:order_uri]}]"
-          )
-
-        ]
-
-      elsif tr.state_code == 301
+      if tr.state_code == 301
 
         return [
 
@@ -304,10 +304,17 @@ class GpbTransaction
       begin
 
         if tr.with(safe: true).save
-          [ true, "Оплата разрешена", tr.id.to_s ]
+
+          return [
+
+            true,
+            "Оплата разрешена", tr.id.to_s
+
+          ]
+
         else
 
-          [
+          return [
 
             false,
             GpbMerchant.log(
@@ -322,7 +329,12 @@ class GpbTransaction
       rescue => e
 
         ::GpbMerchant.log(e.message, "GpbTransaction.check [#{params[:order_uri]}]")
-        [ false, "Ошибка сервера" ]
+        return [
+
+          false,
+          "Ошибка сервера"
+
+        ]
 
       end
 
@@ -421,7 +433,7 @@ class GpbTransaction
       ] if delta.abs > 0
 
       # Сохраняем данные
-      tr.state_code   = (params[:result_code] == 1 ? 301 : 402)
+      tr.state_code   = ((params[:result_code].try(:to_i) || 0) == 1 ? 301 : 402)
       tr.payed_at     = params[:payed_at]
       tr.received_at  = ::GpbMerchant.correct_date(params[:payed_at])
       tr.transmission_at = params[:transmission_at]
@@ -440,7 +452,12 @@ class GpbTransaction
             clb = ::GpbMerchant.success_payment_callback
             clb.call(tr.order_uri, tr.received_at) if clb.is_a?(::Proc)
 
-            [ true, "Оплата успешна" ]
+            return [
+
+              true,
+              "Оплата успешна"
+
+            ]
 
           else
 
@@ -448,7 +465,7 @@ class GpbTransaction
             clb = ::GpbMerchant.failure_payment_callback
             clb.call(tr.order_uri) if clb.is_a?(::Proc)
 
-            [
+            return [
 
               true,
               GpbMerchant.log(
@@ -462,7 +479,7 @@ class GpbTransaction
 
         else
 
-          [
+          return [
 
             false,
             GpbMerchant.log(
@@ -477,7 +494,13 @@ class GpbTransaction
       rescue => e
 
         ::GpbMerchant.log(e.message, "GpbTransaction.complete [#{params[:order_uri]}]")
-        [ false, "Ошибка сервера" ]
+
+        return [
+
+          false,
+          "Ошибка сервера"
+
+        ]
 
       end
 
@@ -525,7 +548,6 @@ class GpbTransaction
 
   def invoice_for_payment
 
-    return false unless self.invoice_for_payment?
     return false if self.order.nil?
 
     self.checked_at   = nil
