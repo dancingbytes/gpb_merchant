@@ -264,7 +264,7 @@ class GpbTransaction
           false,
           GpbMerchant.log(
             "Оплата завершена ранее",
-            "GpbTransaction.check [#{params[:order_uri]}]"
+            "GpbTransaction.check [#{params.inspect}]"
           )
 
         ]
@@ -276,7 +276,7 @@ class GpbTransaction
           false,
           GpbMerchant.log(
             "Выставленный счет отменен",
-            "GpbTransaction.check [#{params[:order_uri]}]"
+            "GpbTransaction.check [#{params.inspect}]"
           )
 
         ]
@@ -291,7 +291,7 @@ class GpbTransaction
         GpbMerchant.log(
           "Сумма оплаты (#{params[:amount].to_f/100} руб.) не соотвествует " <<
           "заявленой стоиомсти заказа (#{tr.price_f} руб.)",
-          "GpbTransaction.check [#{params[:order_uri]}]"
+          "GpbTransaction.check [#{params.inspect}]"
         )
 
       ] if delta.abs > 0
@@ -319,7 +319,7 @@ class GpbTransaction
             false,
             GpbMerchant.log(
               tr.errors.first.last || "Неизвестная ошибка",
-              "GpbTransaction.check [#{params[:order_uri]}]"
+              "GpbTransaction.check [#{params.inspect}]"
             )
 
           ]
@@ -328,7 +328,7 @@ class GpbTransaction
 
       rescue => e
 
-        ::GpbMerchant.log(e.message, "GpbTransaction.check [#{params[:order_uri]}]")
+        ::GpbMerchant.log(e.message, "GpbTransaction.check [#{params.inspect}]")
         return [
 
           false,
@@ -348,7 +348,7 @@ class GpbTransaction
         false,
         GpbMerchant.log(
           "Сигнатура не прошла проверку",
-          "GpbTransaction.complete [#{params[:order_uri]}]"
+          "GpbTransaction.complete [#{params.inspect}]"
         )
 
       ] unless params[:verified]
@@ -364,7 +364,7 @@ class GpbTransaction
         false,
         GpbMerchant.log(
           "Счет на оплату не выставлен",
-          "GpbTransaction.complete [#{params[:order_uri]}]"
+          "GpbTransaction.complete [#{params.inspect}]"
         )
 
       ] unless tr
@@ -376,7 +376,7 @@ class GpbTransaction
           false,
           GpbMerchant.log(
             "Необходимо произвезти проверку платежа",
-            "GpbTransaction.complete [#{params[:order_uri]}]"
+            "GpbTransaction.complete [#{params.inspect}]"
           )
 
         ]
@@ -388,7 +388,7 @@ class GpbTransaction
           false,
           GpbMerchant.log(
             "Оплата завершена ранее",
-            "GpbTransaction.complete [#{params[:order_uri]}]"
+            "GpbTransaction.complete [#{params.inspect}]"
           )
 
         ]
@@ -400,7 +400,7 @@ class GpbTransaction
           false,
           GpbMerchant.log(
             "Выставленный счет отменен",
-            "GpbTransaction.complete [#{params[:order_uri]}]"
+            "GpbTransaction.complete [#{params.inspect}]"
           )
 
         ]
@@ -412,7 +412,7 @@ class GpbTransaction
           false,
           GpbMerchant.log(
             "Неверный идентификатор операции",
-            "GpbTransaction.complete [#{params[:order_uri]}]"
+            "GpbTransaction.complete [#{params.inspect}]"
           )
 
         ]
@@ -427,7 +427,7 @@ class GpbTransaction
         GpbMerchant.log(
           "Сумма оплаты (#{params[:amount].to_f/100} руб.) " <<
           "не соотвествует заявленой стоиомсти заказа (#{tr.price_f} руб.)",
-          "GpbTransaction.complete [#{params[:order_uri]}]"
+          "GpbTransaction.complete [#{params.inspect}]"
         )
 
       ] if delta.abs > 0
@@ -470,7 +470,7 @@ class GpbTransaction
               true,
               GpbMerchant.log(
                 "Счет на оплату отклонен",
-                "GpbTransaction.complete [#{params[:order_uri]}]"
+                "GpbTransaction.complete [#{params.inspect}]"
               )
 
             ]
@@ -484,7 +484,7 @@ class GpbTransaction
             false,
             GpbMerchant.log(
               tr.errors.first.last || "Неизвестная ошибка",
-              "GpbTransaction.complete [#{params[:order_uri]}]"
+              "GpbTransaction.complete [#{params.inspect}]"
             )
 
           ]
@@ -493,7 +493,7 @@ class GpbTransaction
 
       rescue => e
 
-        ::GpbMerchant.log(e.message, "GpbTransaction.complete [#{params[:order_uri]}]")
+        ::GpbMerchant.log(e.message, "GpbTransaction.complete [#{params.inspect}]")
 
         return [
 
