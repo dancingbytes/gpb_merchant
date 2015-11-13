@@ -164,7 +164,7 @@ class GpbTransaction
 
       GpbMerchant.log(
         " --> Обработка",
-        "GpbTransaction.init [prepare] [#{params.inspect}]"
+        "GpbTransaction.init [prepare] [#{order_uri}]"
       )
 
       order = Order.where({ uri: order_uri }).first
