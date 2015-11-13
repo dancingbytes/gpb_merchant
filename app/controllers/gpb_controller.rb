@@ -5,7 +5,7 @@ class GpbController < ApplicationController
 
   unloadable
 
-  before_filter :skip_before_filter, :validate_merch_id, :auth_request
+  before_filter :validate_merch_id, :auth_request
 
   def check
 
