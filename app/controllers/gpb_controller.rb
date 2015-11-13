@@ -5,7 +5,7 @@ class GpbController < ApplicationController
 
   unloadable
 
-  before_filter :validate_merch_id, :auth_request
+  before_filter :skip_before_filter, :validate_merch_id, :auth_request
 
   def check
 
@@ -59,10 +59,15 @@ class GpbController < ApplicationController
 
   def validate_merch_id
 
-    return true if ((::GpbMerchant::merch_id == params[:merch_id]) && (params[:merch_id] != ""))
+    return true if ((params[:merch_id] != "") && (::GpbMerchant::merch_id == params[:merch_id]))
+
+    ::GpbMerchant.log(
+      "--> Проверка `merch_id` провалена",
+      "validate_merch_id: [#{params.inspect}]"
+    )
 
     respond_to do |format|
-      format.html { render :text => "Неверный запрос", :status => 400, :layout => false }
+      format.html { render text: "Неверный запрос", status: 400, layout: false }
       format.any  { head 400 }
     end
 
@@ -73,7 +78,16 @@ class GpbController < ApplicationController
   def auth_request
 
     authenticate_or_request_with_http_basic do |login, password|
-      (login == ::GpbMerchant::login && password == ::GpbMerchant::password)
+
+      res = (login == ::GpbMerchant::login && password == ::GpbMerchant::password)
+
+      ::GpbMerchant.log(
+        "--> Авторизация",
+        "login: #{login}, auth: #{res}"
+      )
+
+      res
+
     end
 
   end # auth_request

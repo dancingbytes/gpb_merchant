@@ -162,6 +162,11 @@ class GpbTransaction
     # Инициализация платежа. Выставление счета
     def init(order_uri)
 
+      GpbMerchant.log(
+        " --> Обработка",
+        "GpbTransaction.init [prepare] [#{params.inspect}]"
+      )
+
       order = Order.where({ uri: order_uri }).first
       return [
 
@@ -244,6 +249,11 @@ class GpbTransaction
 
     # Проверка платежа
     def check(params = {})
+
+      GpbMerchant.log(
+        " --> Обработка",
+        "GpbTransaction.check [prepare] [#{params.inspect}]"
+      )
 
       tr = where({
         merch_id:   params[:merch_id],
@@ -342,6 +352,11 @@ class GpbTransaction
 
     # Проведение платежа
     def complete(params)
+
+      GpbMerchant.log(
+        " --> Обработка",
+        "GpbTransaction.complete [prepare] [#{params.inspect}]"
+      )
 
       return [
 
