@@ -64,7 +64,7 @@ class GpbController < ApplicationController
     ::GpbMerchant.log(
       "--> Проверка `merch_id` провалена",
       "validate_merch_id: [#{params.inspect}]"
-    )
+    ) if GpbMerchant.debug?
 
     respond_to do |format|
       format.html { render text: "Неверный запрос", status: 400, layout: false }
@@ -84,7 +84,7 @@ class GpbController < ApplicationController
       ::GpbMerchant.log(
         "--> Авторизация",
         "login: #{login}, auth: #{res}"
-      )
+      ) if GpbMerchant.debug?
 
       res
 

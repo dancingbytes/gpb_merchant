@@ -6,6 +6,17 @@ module GpbMerchant
 
   extend self
 
+  def debug(v = nil)
+
+    @debug = (v === true) unless v.nil?
+    @debug
+
+  end # debug
+
+  def debug?
+    @debug === true
+  end # debug?
+
   def login(v = nil)
 
     @login = v unless v.nil?

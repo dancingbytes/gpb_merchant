@@ -165,7 +165,7 @@ class GpbTransaction
       GpbMerchant.log(
         " --> Обработка",
         "GpbTransaction.init [prepare] [#{order_uri}]"
-      )
+      ) if GpbMerchant.debug?
 
       order = Order.where({ uri: order_uri }).first
       return [
@@ -253,7 +253,7 @@ class GpbTransaction
       GpbMerchant.log(
         " --> Обработка",
         "GpbTransaction.check [prepare] [#{params.inspect}]"
-      )
+      ) if GpbMerchant.debug?
 
       tr = where({
         merch_id:   params[:merch_id],
@@ -356,7 +356,7 @@ class GpbTransaction
       GpbMerchant.log(
         " --> Обработка",
         "GpbTransaction.complete [prepare] [#{params.inspect}]"
-      )
+      ) if GpbMerchant.debug?
 
       return [
 
